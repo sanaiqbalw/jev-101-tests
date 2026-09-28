@@ -1,0 +1,36 @@
+usecase: fraud
+dataset: data/fraud.jsonl
+jev_model: typesafe/jev-1.13
+generator_model: us.anthropic.claude-opus-5-5
+# USD per million tokens. Anthropic list prices copied from OpenRouter's listing;
+# check them against Bedrock pricing before quoting any cost.
+prices:
+  us.anthropic.claude-haiku-4-5-20251001-v1:0: {input: 1, output: 5}
+  us.anthropic.claude-sonnet-5: {input: 2, output: 10}
+  us.anthropic.claude-opus-5-5: {input: 4, output: 20}
+confidence_threshold: 0.7
+max_rows: 100
+workers: 4
+questions:
+  - id: label
+    type: choice
+    instructions: Which fraud class best describes this card transaction?
+    # Jev misroutes on bare option names, so every class carries a description.
+    criteria:
+      legitimate: Normal purchase consistent with the cardholder's history.
+      card_testing: Many tiny charges probing whether stolen card details work.
+      account_takeover: Someone else controls the account, e.g. new device, new location, changed details.
+      friendly_fraud: The real cardholder made the purchase but is likely to dispute it.
+      merchant_collusion: The merchant is complicit, e.g. fake sales or laundering through its terminal.
+  - id: cardholder_present
+    type: noul
+    instructions: Was the genuine cardholder likely present for this transaction?
+    criteria: null
+  - id: merchant_suspicious
+    type: noul
+    instructions: Does the merchant itself look suspicious?
+    criteria: null
+  - id: risk
+    type: score
+    instructions: How risky is this transaction overall?
+    criteria: [very low, low, moderate, high, very high]

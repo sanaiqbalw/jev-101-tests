@@ -1,0 +1,33 @@
+usecase: refund
+dataset: data/refund.jsonl
+jev_model: typesafe/jev-1.13
+generator_model: us.anthropic.claude-opus-5-5
+# USD per million tokens. Anthropic list prices copied from OpenRouter's listing;
+# check them against Bedrock pricing before quoting any cost.
+prices:
+  us.anthropic.claude-haiku-4-5-20251001-v1:0: {input: 1, output: 5}
+  us.anthropic.claude-sonnet-5: {input: 2, output: 10}
+  us.anthropic.claude-opus-5-5: {input: 4, output: 20}
+confidence_threshold: 0.7
+max_rows: 60
+workers: 4
+# Refund window in days per reason. Code applies this; Jev never does date maths in the split approach.
+windows: {defective: 30, wrong_item: 30, changed_mind: 14}
+questions:            # split approach: Jev only reads the reason
+  - id: reason
+    type: choice
+    instructions: Why does the customer want a refund?
+    criteria:
+      defective: The item arrived broken or damaged, or stopped working.
+      wrong_item: The customer received a different item, size or colour than they ordered.
+      changed_mind: The item is as ordered and works, but the customer no longer wants it.
+naive_question:       # one-question approach: Jev reads policy + dates and decides
+  id: eligible
+  type: noul
+  instructions: "Refund policy: items that arrived broken, damaged, stopped working, or are the wrong item can be refunded up to 30 days after delivery. Items the customer simply no longer wants can be refunded up to 14 days after delivery. Is this customer eligible for a refund on the date in `requested_on`?"
+  criteria: null
+days_question:        # one-question approach with the day count precomputed: Jev compares it to the policy
+  id: eligible
+  type: noul
+  instructions: "Refund policy: items that arrived broken, damaged, stopped working, or are the wrong item can be refunded up to 30 days after delivery. Items the customer simply no longer wants can be refunded up to 14 days after delivery. The field `days_since_delivery` says how many days have passed since delivery. Is this customer eligible for a refund?"
+  criteria: null

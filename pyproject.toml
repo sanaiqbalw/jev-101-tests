@@ -1,0 +1,15 @@
+[project]
+name = "jev-explore"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "typesafe-sdk",
+    "boto3",
+    "pyyaml",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.uv]
+package = false

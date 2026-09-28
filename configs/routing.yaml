@@ -1,0 +1,32 @@
+usecase: routing
+dataset: data/routing.jsonl
+jev_model: typesafe/jev-1.13
+frontier_model: us.anthropic.claude-opus-5-5
+generator_model: us.anthropic.claude-opus-5-5
+judge_model: us.anthropic.claude-opus-5-5
+# USD per million tokens. Anthropic list prices copied from OpenRouter's listing;
+# check them against Bedrock pricing before quoting any cost.
+prices:
+  us.anthropic.claude-haiku-4-5-20251001-v1:0: {input: 1, output: 5}
+  us.anthropic.claude-sonnet-5: {input: 2, output: 10}
+  us.anthropic.claude-opus-5-5: {input: 4, output: 20}
+tier_models:
+  simple: {model: us.anthropic.claude-haiku-4-5-20251001-v1:0, extra: null}
+  medium: {model: us.anthropic.claude-sonnet-5, extra: null}
+  complex: {model: us.anthropic.claude-opus-5-5, extra: null}
+  # Same model as complex; the tier differs only by thinking. `extra` is passed
+  # verbatim as additionalModelRequestFields.
+  # Adaptive + effort high: Opus 5.5 rejects thinking.type=enabled, and this shape passed the smoke check.
+  reasoning: {model: us.anthropic.claude-opus-5-5, extra: {thinking: {type: adaptive}, output_config: {effort: high}}}
+confidence_threshold: 0.7
+max_rows: 80
+workers: 4
+questions:
+  - id: tier
+    type: choice
+    instructions: Which model tier is the cheapest one that can answer this prompt well?
+    criteria:
+      simple: Lookup, rewording or short factual answers; no real reasoning.
+      medium: Everyday writing, summarising or code with a few clear steps.
+      complex: Long or specialised work needing expert knowledge and careful structure.
+      reasoning: Multi-step maths, logic or planning where errors compound.

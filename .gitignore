@@ -1,0 +1,14 @@
+.omni/
+.claude/
+.github/
+.cursor/
+.kiro/
+.agents/
+results/
+data/
+.env*
+.venv/
+__pycache__/
+.pytest_cache/
+.DS_Store
+article/
