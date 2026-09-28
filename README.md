@@ -2,7 +2,7 @@
 
 Small experiments to learn how Jev, TypeSafe's decision model, behaves on three tasks.
 
-## What Jev is
+## What Jev is as a model
 
 Jev is a decision model from TypeSafe AI. It does not write text. It fills in answers to questions you define, and every answer comes with probabilities.
 
